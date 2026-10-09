@@ -20,6 +20,10 @@ export interface DepositorRow {
   /** Unix seconds, interpolated from sampled block timestamps. */
   firstTs: number | null;
   lastTs: number | null;
+  /** Transaction hashes of the largest, first and last deposit. */
+  largestTx: Hex | null;
+  firstTx: Hex | null;
+  lastTx: Hex | null;
 }
 
 export interface RankingTotals {
@@ -41,6 +45,9 @@ interface Agg {
   largest: bigint;
   firstBlock: number;
   lastBlock: number;
+  largestTx: Hex | null;
+  firstTx: Hex | null;
+  lastTx: Hex | null;
 }
 
 export function aggregate(events: Iterable<ExchangeEvent>): Map<Hex, Agg> {
@@ -48,16 +55,16 @@ export function aggregate(events: Iterable<ExchangeEvent>): Map<Hex, Agg> {
   for (const e of events) {
     let a = m.get(e.user);
     if (!a) {
-      a = { address: e.user, proxy: null, deposited: 0n, withdrawn: 0n, depositCount: 0, withdrawCount: 0, largest: 0n, firstBlock: Infinity, lastBlock: -Infinity };
+      a = { address: e.user, proxy: null, deposited: 0n, withdrawn: 0n, depositCount: 0, withdrawCount: 0, largest: 0n, firstBlock: Infinity, lastBlock: -Infinity, largestTx: null, firstTx: null, lastTx: null };
       m.set(e.user, a);
     }
     if (e.kind === "deposit") {
       a.proxy ??= e.proxy;
       a.deposited += e.amountUsdc;
       a.depositCount += 1;
-      if (e.amountUsdc > a.largest) a.largest = e.amountUsdc;
-      if (e.block < a.firstBlock) a.firstBlock = e.block;
-      if (e.block > a.lastBlock) a.lastBlock = e.block;
+      if (e.amountUsdc > a.largest) { a.largest = e.amountUsdc; a.largestTx = e.txHash; }
+      if (e.block < a.firstBlock) { a.firstBlock = e.block; a.firstTx = e.txHash; }
+      if (e.block >= a.lastBlock) { a.lastBlock = e.block; a.lastTx = e.txHash; }
     } else {
       a.withdrawn += e.amountUsdc;
       a.withdrawCount += 1;
@@ -113,6 +120,9 @@ export function buildRanking(events: Iterable<ExchangeEvent>, opts: BuildOptions
       lastBlock: a.lastBlock,
       firstTs: tsOf(a.firstBlock),
       lastTs: tsOf(a.lastBlock),
+      largestTx: a.largestTx,
+      firstTx: a.firstTx,
+      lastTx: a.lastTx,
     });
   }
   return {
