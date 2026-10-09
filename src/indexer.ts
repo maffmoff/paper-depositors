@@ -42,7 +42,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
  * Override with PAPERTRADE_RPCS="https://a,https://b". Every endpoint must
  * serve chain 999 and accept 1000-block eth_getLogs ranges.
  */
-export const RPC_ENDPOINTS: string[] = (process.env.PAPERTRADE_RPCS ?? `${RPC_URL},https://rpc.hypurrscan.io`).split(",").map((s) => s.trim()).filter(Boolean);
+export const RPC_ENDPOINTS: string[] = (process.env.PAPERTRADE_RPCS || `${RPC_URL},https://rpc.hypurrscan.io`).split(",").map((s) => s.trim()).filter(Boolean);
 let rpcCursor = 0;
 
 /** One block timestamp is sampled every TS_SAMPLE_WINDOWS windows for interpolation. */
