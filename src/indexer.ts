@@ -164,6 +164,20 @@ export async function fetchLeaderboardNames(): Promise<{ names: Map<string, stri
   return { names, uniqueAccounts, trackedBalance };
 }
 
+/** Display names from the Hyperliquid leaderboard (public JSON, ~40 MB). Fails soft. */
+export async function fetchHyperliquidNames(): Promise<Map<string, string>> {
+  const names = new Map<string, string>();
+  try {
+    const res = await fetch("https://stats-data.hyperliquid.xyz/Mainnet/leaderboard", { headers: { accept: "application/json" } });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const body = (await res.json()) as { leaderboardRows?: { ethAddress: string; displayName: string | null }[] };
+    for (const r of body.leaderboardRows ?? []) if (r.displayName) names.set(r.ethAddress.toLowerCase(), r.displayName);
+  } catch (e) {
+    console.error(`hyperliquid names unavailable: ${(e as Error).message}`);
+  }
+  return names;
+}
+
 async function fetchProtocolTvl(): Promise<string | null> {
   try {
     const res = await fetch(`${ORIGIN}/query/protocol/summary`, { headers: { accept: "application/json" } });
@@ -224,8 +238,9 @@ export async function runIndexer(opts: IndexOptions = {}): Promise<{ scannedThro
 
   const enrichment = opts.withNames === false ? { names: new Map<string, string>(), uniqueAccounts: null, trackedBalance: null } : await fetchLeaderboardNames();
   const tvl = await fetchProtocolTvl();
+  const hlNames = opts.withNames === false ? new Map<string, string>() : await fetchHyperliquidNames();
   const tsOf = makeTimestampInterpolator(cp.blockTimestamps);
-  const { rows, totals } = buildRanking(cp.events, { tsOf, names: enrichment.names });
+  const { rows, totals } = buildRanking(cp.events, { tsOf, names: enrichment.names, hlNames });
   const toTs = cp.blockTimestamps.length ? cp.blockTimestamps[cp.blockTimestamps.length - 1][1] : null;
   writeJsonAtomic(RANKING_PATH, {
     generatedAt: new Date().toISOString(),

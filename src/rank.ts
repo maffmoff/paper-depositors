@@ -8,7 +8,10 @@ export interface DepositorRow {
   rank: number;
   address: Hex;
   proxy: Hex | null;
+  /** Display name on the Papertrade leaderboard. */
   name: string | null;
+  /** Display name on the Hyperliquid leaderboard, when the wallet has one. */
+  hlName: string | null;
   depositedUsdc: string;
   withdrawnUsdc: string;
   netUsdc: string;
@@ -93,6 +96,7 @@ export interface BuildOptions {
   sortBy?: SortKey;
   tsOf?: (block: number) => number | null;
   names?: ReadonlyMap<string, string>;
+  hlNames?: ReadonlyMap<string, string>;
 }
 
 export function buildRanking(events: Iterable<ExchangeEvent>, opts: BuildOptions = {}): { rows: DepositorRow[]; totals: RankingTotals } {
@@ -110,6 +114,7 @@ export function buildRanking(events: Iterable<ExchangeEvent>, opts: BuildOptions
       address: a.address,
       proxy: a.proxy,
       name: opts.names?.get(a.address) ?? null,
+      hlName: opts.hlNames?.get(a.address) ?? null,
       depositedUsdc: a.deposited.toString(),
       withdrawnUsdc: a.withdrawn.toString(),
       netUsdc: (a.deposited - a.withdrawn).toString(),

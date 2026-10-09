@@ -7,6 +7,8 @@
   // Entity = display name with a trailing counter removed ("paperstrategy12" -> "paperstrategy").
   // Grouping is by name only; wallets without a name are not attributed to anyone.
   const entityOf = (name) => (name ? name.trim().replace(/[\s_\-#.]*\d+$/, "").toLowerCase() : "") || null;
+  // Papertrade name first; a wallet with only a Hyperliquid name is grouped under that.
+  const labelOf = (r) => r.name || r.hlName || null;
 
   const big = (s) => BigInt(s);
   const cmp = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
@@ -60,7 +62,7 @@
   function entities() {
     const groups = new Map();
     for (const r of state.data.rows) {
-      const key = entityOf(r.name);
+      const key = entityOf(labelOf(r));
       if (!key) continue;
       let g = groups.get(key);
       if (!g) {
@@ -87,7 +89,7 @@
       const sign = state.dir === "asc" ? -1 : 1;
       return [...rows].sort((a, b) => sign * SORTERS[state.sort](a, b) || cmp(a.name, b.name));
     }
-    if (q) rows = rows.filter((r) => r.address.includes(q) || (r.name && r.name.toLowerCase().includes(q)) || (r.proxy && r.proxy.includes(q)));
+    if (q) rows = rows.filter((r) => r.address.includes(q) || (r.name && r.name.toLowerCase().includes(q)) || (r.hlName && r.hlName.toLowerCase().includes(q)) || (r.proxy && r.proxy.includes(q)));
     const sign = state.dir === "asc" ? -1 : 1;
     return [...rows].sort((a, b) => sign * SORTERS[state.sort](a, b) || a.firstBlock - b.firstBlock || cmp(a.address, b.address));
   }
@@ -104,7 +106,7 @@
       const wd = big(r.withdrawnUsdc) > 0n;
       const who = state.mode === "entities"
         ? `<td class="ent"><a data-entity="${esc(r.name)}" title="show wallets">${esc(r.name)}</a><span class="n">${r.wallets.length} wallet${r.wallets.length === 1 ? "" : "s"}</span></td>`
-        : `<td class="addr"><a href="${ex}/address/${r.address}" target="_blank" rel="noopener" title="${r.address}">${short(r.address)}</a>${r.name ? `<span class="name">${esc(r.name)}</span>` : ""}</td>`;
+        : `<td class="addr"><a href="${ex}/address/${r.address}" target="_blank" rel="noopener" title="${r.address}">${short(r.address)}</a>${r.name ? `<span class="name">${esc(r.name)}</span>` : ""}${r.hlName ? `<span class="name hl" title="display name on the Hyperliquid leaderboard">${esc(r.hlName)}</span>` : ""}</td>`;
       return `<tr>
         <td class="num rank">${rank}</td>
         ${who}
@@ -176,7 +178,7 @@
     renderTable();
   });
   function renderModeHint() {
-    $("modehint").textContent = state.mode === "entities" ? "wallets grouped by display name (trailing numbers ignored)" : "one row per wallet";
+    $("modehint").textContent = state.mode === "entities" ? "wallets grouped by display name (papertrade, else hyperliquid; trailing numbers ignored)" : "one row per wallet";
   }
   $("rows").addEventListener("click", (e) => {
     const a = e.target.closest("a[data-entity]");
