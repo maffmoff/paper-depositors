@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>depositors · papertrade</title>
+<meta name="description" content="Papertrade depositors ranked by USDC deposited, read from the Exchange contract's logs on HyperEVM.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="tape" id="tape" aria-live="polite"></div>
+
+<main class="wrap">
+  <header class="hero">
+    <h1>depositors</h1>
+    <p class="lede">papertrade depositors leaderboard</p>
+  </header>
+
+  <section class="controls">
+    <input id="q" type="search" placeholder="search wallet or name" autocomplete="off" spellcheck="false" aria-label="Search">
+    <div class="modes" id="modes" role="group" aria-label="View">
+      <button type="button" data-mode="wallets" class="tag on" title="one row per wallet address">[ wallets ]</button>
+      <button type="button" data-mode="entities" class="tag" title="wallets grouped by display name, e.g. paperstrategy1…72 → paperstrategy">[ entities ]</button>
+    </div>
+    <span class="hint" id="modehint">one row per wallet</span>
+  </section>
+
+  <table id="table">
+    <thead>
+      <tr>
+        <th class="num">#</th>
+        <th><button type="button" data-sort="wallet" id="th-wallet">wallet</button></th>
+        <th class="num"><button type="button" data-sort="deposited">deposited</button></th>
+        <th class="num"><button type="button" data-sort="withdrawn">withdrawn</button></th>
+        <th class="num"><button type="button" data-sort="count">deposits</button></th>
+        <th class="num"><button type="button" data-sort="largest">largest</button></th>
+        <th class="num"><button type="button" data-sort="first">first</button></th>
+        <th class="num"><button type="button" data-sort="last">last</button></th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+  <p id="empty" class="empty" hidden>no match</p>
+
+  <nav class="pager">
+    <button id="prev" type="button" class="tag">[ prev ]</button>
+    <span id="pageinfo"></span>
+    <button id="next" type="button" class="tag">[ next ]</button>
+  </nav>
+
+  <footer class="foot" id="meta"></footer>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
