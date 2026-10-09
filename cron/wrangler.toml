@@ -5,6 +5,7 @@
 name = "paper-depositors-cron"
 main = "src/index.js"
 compatibility_date = "2026-10-01"
+workers_dev = false   # cron only; no public URL
 
 [triggers]
 crons = ["*/10 * * * *"]
