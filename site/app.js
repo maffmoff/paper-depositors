@@ -186,7 +186,7 @@
     renderTable();
   });
   function renderModeHint() {
-    $("modehint").textContent = state.mode === "entities" ? "wallets grouped by display name (papertrade, else hyperliquid; trailing numbers ignored)" : "one row per wallet";
+    $("modehint").textContent = state.mode === "entities" ? "grouped by display name · trailing numbers ignored" : "one row per wallet";
   }
   $("rows").addEventListener("click", (e) => {
     const a = e.target.closest("a[data-entity]");
