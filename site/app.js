@@ -52,7 +52,6 @@
       ["net", compact(t.netUsdc)],
       ["block", d.toBlock.toLocaleString("en-US")],
     ];
-    if (d.crossCheck && d.crossCheck.apiTvl18) items.push(["tvl (api)", usd18(d.crossCheck.apiTvl18)]);
     $("tape").innerHTML = items.map(([k, v]) => `<span>${esc(k)} <b>${esc(v)}</b></span>`).join("");
   }
 
