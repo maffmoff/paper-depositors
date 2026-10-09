@@ -141,6 +141,7 @@
       return;
     }
     renderTape(state.data);
+    $("updated").textContent = `updated ${when(Math.floor(new Date(state.data.generatedAt).getTime() / 1000))}`;
     renderMeta(state.data);
     renderTable();
   }

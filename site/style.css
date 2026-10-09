@@ -19,7 +19,8 @@ a { color: inherit; text-decoration: none; }
 .tape span b { color: var(--ink); font-weight: 500; }
 
 .wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px 64px; }
-.hero { padding: 72px 0 40px; }
+.hero { position: relative; padding: 72px 0 40px; }
+.updated { position: absolute; top: 20px; right: 0; font: 11px var(--mono); color: var(--ink-faint); letter-spacing: .02em; }
 h1 { margin: 0; font-size: clamp(56px, 10vw, 104px); font-weight: 700; letter-spacing: -.04em; line-height: .95; }
 .lede { margin: 20px 0 0 4px; font-size: 16px; color: var(--ink-soft); }
 
