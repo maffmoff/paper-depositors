@@ -2,20 +2,24 @@
   "use strict";
   const $ = (id) => document.getElementById(id);
   const PAGE = 50;
-  const state = { data: null, mode: "wallets", sort: "deposited", dir: "desc", q: "", page: 0 };
+  const state = { data: null, labels: {}, mode: "wallets", sort: "deposited", dir: "desc", q: "", page: 0 };
 
   // Entity = display name with a trailing counter removed ("paperstrategy12" -> "paperstrategy").
   // Grouping is by name only; wallets without a name are not attributed to anyone.
   const entityOf = (name) => (name ? name.trim().replace(/[\s_\-#.]*\d+$/, "").toLowerCase() : "") || null;
   // Papertrade name first; a wallet with only a Hyperliquid name is grouped under that.
-  const labelOf = (r) => r.name || r.hlName || null;
-  // Papertrade name shown as the name; a Hyperliquid name is appended small when both exist,
-  // or used as the name itself when the wallet has no Papertrade name.
+  // Name priority: Papertrade display name, then a label from labels.json (owner identified
+  // from public sources), then the Hyperliquid display name. The others are appended small.
+  const labelOf = (r) => r.name || (state.labels[r.address] && state.labels[r.address].name) || r.hlName || null;
   const nameCells = (r) => {
-    if (r.name && r.hlName) return `<span class="name">${esc(r.name)}</span><span class="name hl" title="display name on the Hyperliquid leaderboard">${esc(r.hlName)}</span>`;
-    if (r.name) return `<span class="name">${esc(r.name)}</span>`;
-    if (r.hlName) return `<span class="name" title="display name on the Hyperliquid leaderboard">${esc(r.hlName)}</span>`;
-    return "";
+    const label = state.labels[r.address];
+    const primary = labelOf(r);
+    if (!primary) return "";
+    const extras = [];
+    if (label && label.name !== primary) extras.push([label.name, label.source || "identified from public sources"]);
+    if (r.hlName && r.hlName !== primary) extras.push([r.hlName, "display name on the Hyperliquid leaderboard"]);
+    const title = primary === (label && label.name) ? label.source : primary === r.hlName ? "display name on the Hyperliquid leaderboard" : "";
+    return `<span class="name" title="${esc(title)}">${esc(primary)}</span>` + extras.map(([n, t]) => `<span class="name hl" title="${esc(t)}">${esc(n)}</span>`).join("");
   };
 
   const big = (s) => BigInt(s);
@@ -97,7 +101,7 @@
       const sign = state.dir === "asc" ? -1 : 1;
       return [...rows].sort((a, b) => sign * SORTERS[state.sort](a, b) || cmp(a.name, b.name));
     }
-    if (q) rows = rows.filter((r) => r.address.includes(q) || (r.name && r.name.toLowerCase().includes(q)) || (r.hlName && r.hlName.toLowerCase().includes(q)) || (r.proxy && r.proxy.includes(q)));
+    if (q) rows = rows.filter((r) => r.address.includes(q) || (r.name && r.name.toLowerCase().includes(q)) || (r.hlName && r.hlName.toLowerCase().includes(q)) || (state.labels[r.address] && state.labels[r.address].name.toLowerCase().includes(q)) || (r.proxy && r.proxy.includes(q)));
     const sign = state.dir === "asc" ? -1 : 1;
     return [...rows].sort((a, b) => sign * SORTERS[state.sort](a, b) || a.firstBlock - b.firstBlock || cmp(a.address, b.address));
   }
@@ -147,6 +151,8 @@
       const res = await fetch(`data/ranking.json?t=${Date.now()}`, { cache: "no-store" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       state.data = await res.json();
+      const lab = await fetch(`labels.json?t=${Date.now()}`, { cache: "no-store" }).then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
+      state.labels = Object.fromEntries(Object.entries(lab).filter(([k, v]) => k.startsWith("0x") && v && v.name));
     } catch (e) {
       $("tape").innerHTML = `<span>no data yet — run <b>npm run depositors:index</b> (${esc(e.message)})</span>`;
       return;
