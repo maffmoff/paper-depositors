@@ -9,6 +9,14 @@
   const entityOf = (name) => (name ? name.trim().replace(/[\s_\-#.]*\d+$/, "").toLowerCase() : "") || null;
   // Papertrade name first; a wallet with only a Hyperliquid name is grouped under that.
   const labelOf = (r) => r.name || r.hlName || null;
+  // Papertrade name shown as the name; a Hyperliquid name is appended small when both exist,
+  // or used as the name itself when the wallet has no Papertrade name.
+  const nameCells = (r) => {
+    if (r.name && r.hlName) return `<span class="name">${esc(r.name)}</span><span class="name hl" title="display name on the Hyperliquid leaderboard">${esc(r.hlName)}</span>`;
+    if (r.name) return `<span class="name">${esc(r.name)}</span>`;
+    if (r.hlName) return `<span class="name" title="display name on the Hyperliquid leaderboard">${esc(r.hlName)}</span>`;
+    return "";
+  };
 
   const big = (s) => BigInt(s);
   const cmp = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
@@ -106,7 +114,7 @@
       const wd = big(r.withdrawnUsdc) > 0n;
       const who = state.mode === "entities"
         ? `<td class="ent"><a data-entity="${esc(r.name)}" title="show wallets">${esc(r.name)}</a><span class="n">${r.wallets.length} wallet${r.wallets.length === 1 ? "" : "s"}</span></td>`
-        : `<td class="addr"><a href="${ex}/address/${r.address}" target="_blank" rel="noopener" title="${r.address}">${short(r.address)}</a>${r.name ? `<span class="name">${esc(r.name)}</span>` : ""}${r.hlName ? `<span class="name hl" title="display name on the Hyperliquid leaderboard">${esc(r.hlName)}</span>` : ""}</td>`;
+        : `<td class="addr"><a href="${ex}/address/${r.address}" target="_blank" rel="noopener" title="${r.address}">${short(r.address)}</a>${nameCells(r)}</td>`;
       return `<tr>
         <td class="num rank">${rank}</td>
         ${who}
