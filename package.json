@@ -3,17 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Papertrade depositors leaderboard, read from the Exchange contract's logs on HyperEVM",
   "scripts": {
-    "test": "vitest run",
-    "typecheck": "tsc -p .",
-    "depositors:index": "tsx src/indexer.ts",
-    "depositors:serve": "tsx src/serve.ts"
+    "depositors:index": "tsx src/indexer.ts"
   },
   "devDependencies": {
     "@types/node": "^26.6.4",
     "tsx": "^4.23.15",
-    "typescript": "^7.0.2",
-    "vitest": "^4.1.11"
+    "typescript": "^7.0.2"
   }
 }
