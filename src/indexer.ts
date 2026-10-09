@@ -34,6 +34,8 @@ export const MAX_LOG_RANGE = 1000;
 
 export const CHECKPOINT_PATH = "data/depositors/checkpoint.json";
 export const RANKING_PATH = "site/data/ranking.json";
+/** Per-wallet event list for the transaction drill-down; loaded by the page on demand. */
+export const EVENTS_PATH = "site/data/events.json";
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -244,6 +246,10 @@ export async function runIndexer(opts: IndexOptions = {}): Promise<{ scannedThro
     },
     rows,
   });
+  // Compact per-wallet history: [kind, block, amount(8dp), txHash, unixSeconds]
+  const byUser: Record<string, [string, number, string, string, number | null][]> = {};
+  for (const e of cp.events) (byUser[e.user] ??= []).push([e.kind === "deposit" ? "d" : "w", e.block, e.amountUsdc.toString(), e.txHash, tsOf(e.block)]);
+  writeJsonAtomic(EVENTS_PATH, { toBlock: cp.scannedThrough, byUser });
   log(`ranking written: ${rows.length} depositors, ${totals.deposits} deposits, net ${totals.netUsdc} (8dp)`);
   return { scannedThrough: cp.scannedThrough, depositors: rows.length };
 }

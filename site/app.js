@@ -109,7 +109,7 @@
         ${who}
         <td class="num">${usd(r.depositedUsdc)}</td>
         <td class="num ${wd ? "neg" : "dim"}">${wd ? usd(r.withdrawnUsdc) : "–"}</td>
-        <td class="num">${r.depositCount}</td>
+        <td class="num"><button type="button" class="cnt" data-hist="${state.mode === "entities" ? r.wallets.map((w) => w.address).join(",") : r.address}" title="show transactions">${r.depositCount}</button></td>
         <td class="num">${usd(r.largestUsdc)}</td>
         <td class="num dim">${when(r.firstTs)}</td>
         <td class="num dim">${when(r.lastTs)}</td>
@@ -177,7 +177,41 @@
   function renderModeHint() {
     $("modehint").textContent = state.mode === "entities" ? "wallets grouped by display name (trailing numbers ignored)" : "one row per wallet";
   }
+  let events = null;
+  async function loadEvents() {
+    if (events) return events;
+    const res = await fetch(`data/events.json?t=${Date.now()}`, { cache: "no-store" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    events = await res.json();
+    return events;
+  }
+  async function toggleHistory(btn) {
+    const tr = btn.closest("tr");
+    const next = tr.nextElementSibling;
+    if (next && next.classList.contains("hist")) { next.remove(); btn.classList.remove("open"); return; }
+    for (const open of $("rows").querySelectorAll("tr.hist")) open.remove();
+    for (const b of $("rows").querySelectorAll(".cnt.open")) b.classList.remove("open");
+    btn.classList.add("open");
+    const ev = await loadEvents().catch((e) => ({ error: e.message }));
+    const ex = state.data.explorer;
+    const addrs = btn.dataset.hist.split(",");
+    const list = ev.error ? [] : addrs.flatMap((a) => (ev.byUser[a] || []).map((x) => [a, ...x]));
+    list.sort((a, b) => a[2] - b[2]);
+    const rows = list.map(([a, kind, block, amount, tx, ts]) => `<tr>
+        <td>${when(ts)}</td>
+        <td class="${kind === "w" ? "w" : ""}">${kind === "w" ? "withdraw" : "deposit"}</td>
+        <td class="num ${kind === "w" ? "w" : ""}">${kind === "w" ? "-" : ""}${usd(amount)}</td>
+        ${addrs.length > 1 ? `<td class="num"><a href="${ex}/address/${a}" target="_blank" rel="noopener" title="${a}">${short(a)}</a></td>` : ""}
+        <td><a href="${ex}/tx/${tx}" target="_blank" rel="noopener" title="${tx}">${tx.slice(0, 10)}…</a></td>
+      </tr>`).join("");
+    const hist = document.createElement("tr");
+    hist.className = "hist";
+    hist.innerHTML = `<td colspan="8">${ev.error ? `<span class="dim">transactions unavailable (${esc(ev.error)})</span>` : `<table><tbody>${rows}</tbody></table>`}</td>`;
+    tr.after(hist);
+  }
   $("rows").addEventListener("click", (e) => {
+    const c = e.target.closest("button.cnt");
+    if (c) { void toggleHistory(c); return; }
     const a = e.target.closest("a[data-entity]");
     if (!a) return;
     state.mode = "wallets";

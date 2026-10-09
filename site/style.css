@@ -83,3 +83,14 @@ tr:nth-child(-n+3) td.rank { color: var(--red); }
   th:nth-child(n+4):nth-child(-n+7), td:nth-child(n+4):nth-child(-n+7) { display: none; }
   .name { display: block; margin: 2px 0 0; }
 }
+
+td.num .cnt { all: unset; cursor: pointer; border-bottom: 1px dotted var(--ink-faint); }
+td.num .cnt:hover, td.num .cnt.open { color: var(--ink); border-bottom-style: solid; }
+tr.hist td { padding: 0 8px 12px; border-bottom: 1px solid var(--line); white-space: normal; }
+.hist table { width: auto; margin-left: 24px; font-size: 12px; }
+.hist th, .hist td { padding: 4px 10px; border: 0; color: var(--ink-soft); }
+.hist th { font-size: 10px; }
+.hist td.num { font-family: var(--mono); }
+.hist a { font-family: var(--mono); border-bottom: 1px solid var(--line-2); }
+.hist a:hover { color: var(--ink); border-color: var(--ink); }
+.hist .w { color: var(--red); }
