@@ -39,8 +39,8 @@
     if (n >= 1e3) return `$${(n / 1e3).toFixed(0)}K`;
     return `$${n}`;
   }
-  // All times are shown in UTC; the column headers say so.
-  const when = (ts) => (ts == null ? "–" : new Date(ts * 1000).toLocaleString("en-US", { timeZone: "UTC", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }));
+  // Times are shown in the viewer's local time zone.
+  const when = (ts) => (ts == null ? "–" : new Date(ts * 1000).toLocaleString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }));
   const short = (a) => `${a.slice(0, 6)}…${a.slice(-4)}`;
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
@@ -124,7 +124,7 @@
   function renderMeta(d) {
     const lines = [
       `source: deposit and withdrawal events of the exchange contract <a href="${d.explorer}/address/${d.exchange}" target="_blank" rel="noopener">${d.exchange}</a> on hyperevm (chain 999)`,
-      `blocks ${d.fromBlock.toLocaleString("en-US")} – ${d.toBlock.toLocaleString("en-US")} · generated ${new Date(d.generatedAt).toLocaleString("en-US", { timeZone: "UTC", hour12: false })} utc`,
+      `blocks ${d.fromBlock.toLocaleString("en-US")} – ${d.toBlock.toLocaleString("en-US")} · generated ${new Date(d.generatedAt).toLocaleString("en-US", { hour12: false })}`,
       `amounts are usdc as emitted (8 decimals); times are interpolated from sampled block timestamps`,
     ];
     if (d.crossCheck && d.crossCheck.apiTrackedBalance18) lines.push(`cross-check: official api tracked balance ${usd18(d.crossCheck.apiTrackedBalance18)} vs net deposits ${usd(d.totals.netUsdc, false)}`);
