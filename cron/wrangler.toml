@@ -1,0 +1,14 @@
+# Cloudflare Worker that starts the depositors workflow every 10 minutes.
+# GitHub's own cron never fired for this repository, so the schedule lives here.
+# Secret (set once with `npx wrangler secret put GITHUB_TOKEN`): a fine-grained
+# GitHub token for maffmoff/paper-depositors with Actions: Read and write.
+name = "paper-depositors-cron"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+
+[triggers]
+crons = ["*/10 * * * *"]
+
+[vars]
+GITHUB_REPO = "maffmoff/paper-depositors"
+WORKFLOW_FILE = "depositors.yml"

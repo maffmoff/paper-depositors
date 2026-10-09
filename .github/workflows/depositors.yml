@@ -3,8 +3,7 @@
 name: depositors
 
 on:
-  schedule:
-    - cron: "5,15,25,35,45,55 * * * *"   # off the :00/:10 peaks, which GitHub drops first under load; expect 10-20 min between updates
+  # Started every 10 minutes by the Cloudflare Worker in cron/ (GitHub's cron never fired for this repo).
   workflow_dispatch:
 
 permissions:
