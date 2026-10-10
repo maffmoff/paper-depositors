@@ -122,7 +122,8 @@
       return `<tr>
         <td class="num rank">${rank}</td>
         ${who}
-        <td class="num ${big(r.netUsdc) < 0n ? "neg" : ""}" title="deposited ${usd(r.depositedUsdc)}">${usd(r.netUsdc)}</td>
+        <td class="num ${big(r.netUsdc) < 0n ? "neg" : ""}">${usd(r.netUsdc)}</td>
+        <td class="num dim">${usd(r.depositedUsdc)}</td>
         <td class="num ${wd ? "neg" : "dim"}">${wd ? usd(r.withdrawnUsdc) : "–"}</td>
         <td class="num">${r.depositCount}</td>
         <td class="num">${txLink(r.largestTx, usd(r.largestUsdc))}</td>

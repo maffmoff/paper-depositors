@@ -77,14 +77,14 @@ tr:nth-child(-n+3) td.rank { color: var(--red); }
 .foot a:hover { color: var(--ink); }
 
 @media (max-width: 1000px) {
-  th:nth-child(6), td:nth-child(6), th:nth-child(7), td:nth-child(7) { display: none; }
+  th:nth-child(7), td:nth-child(7), th:nth-child(8), td:nth-child(8) { display: none; }
 }
 @media (max-width: 720px) {
   .hero { padding: 48px 0 28px; }
   .controls { grid-template-columns: 1fr max-content; }
   .hint { display: none; }
   th, td { padding: 9px 5px; }
-  th:nth-child(n+4):nth-child(-n+7), td:nth-child(n+4):nth-child(-n+7) { display: none; }
+  th:nth-child(n+4):nth-child(-n+8), td:nth-child(n+4):nth-child(-n+8) { display: none; }
   .name { display: block; margin: 2px 0 0; }
 }
 
