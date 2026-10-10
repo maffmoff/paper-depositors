@@ -2,7 +2,7 @@
   "use strict";
   const $ = (id) => document.getElementById(id);
   const PAGE = 50;
-  const state = { data: null, labels: {}, mode: "wallets", sort: "deposited", dir: "desc", q: "", page: 0 };
+  const state = { data: null, labels: {}, mode: "wallets", sort: "net", dir: "desc", q: "", page: 0 };
 
   // Entity = display name with a trailing counter removed ("paperstrategy12" -> "paperstrategy").
   // Grouping is by name only; wallets without a name are not attributed to anyone.
@@ -122,7 +122,7 @@
       return `<tr>
         <td class="num rank">${rank}</td>
         ${who}
-        <td class="num">${usd(r.depositedUsdc)}</td>
+        <td class="num ${big(r.netUsdc) < 0n ? "neg" : ""}" title="deposited ${usd(r.depositedUsdc)}">${usd(r.netUsdc)}</td>
         <td class="num ${wd ? "neg" : "dim"}">${wd ? usd(r.withdrawnUsdc) : "–"}</td>
         <td class="num">${r.depositCount}</td>
         <td class="num">${txLink(r.largestTx, usd(r.largestUsdc))}</td>
