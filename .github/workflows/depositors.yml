@@ -3,7 +3,11 @@
 name: depositors
 
 on:
-  # Started every 10 minutes by the Cloudflare Worker in cron/ (GitHub's cron never fired for this repo).
+  # Two triggers: GitHub's own schedule (unreliable: it never fired during the first hours of this
+  # repository) and the Cloudflare Worker in cron/, which calls workflow_dispatch every 10 minutes.
+  # The concurrency group below serialises them, so a double trigger only queues one extra run.
+  schedule:
+    - cron: "7,17,27,37,47,57 * * * *"
   workflow_dispatch:
 
 permissions:
